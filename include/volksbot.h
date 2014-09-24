@@ -41,6 +41,7 @@ class Volksbot
         Comm &comm,
         double wheel_radius,
         double axis_length,
+        double driving_direction,
         double turning_adaptation,
         int gear_ratio);
     ~Volksbot();
@@ -53,6 +54,7 @@ class Volksbot
     Comm &comm_;
     double wheel_radius_;
     double axis_length_;
+    double driving_direction_;
     double turning_adaptation_;
     int gear_ratio_;
 };

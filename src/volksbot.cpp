@@ -42,6 +42,7 @@ Volksbot::Volksbot(
         Comm &comm,
         double wheel_radius,
         double axis_length,
+        double driving_direction,
         double turning_adaptation,
         int gear_ratio) :
       epos2_left_(0x02),
@@ -49,6 +50,7 @@ Volksbot::Volksbot(
       comm_(comm),
       wheel_radius_(wheel_radius),
       axis_length_(axis_length),
+      driving_direction_(driving_direction),
       turning_adaptation_(turning_adaptation),
       gear_ratio_(gear_ratio)
 {
@@ -75,8 +77,8 @@ Volksbot::~Volksbot()
 
 void Volksbot::set_wheel_speed(double _v_l_soll, double _v_r_soll)
 {
-  epos2_left_.setTargetVelocity(_v_l_soll / ( 2.0 * M_PI * wheel_radius_) * 60.0 * gear_ratio_);
-  epos2_right_.setTargetVelocity(-1.0 * _v_r_soll / ( 2.0 * M_PI * wheel_radius_) * 60.0 * gear_ratio_);
+  epos2_left_.setTargetVelocity(driving_direction_ * _v_l_soll / ( 2.0 * M_PI * wheel_radius_) * 60.0 * gear_ratio_);
+  epos2_right_.setTargetVelocity(-1.0 * driving_direction_ * _v_r_soll / ( 2.0 * M_PI * wheel_radius_) * 60.0 * gear_ratio_);
 }
 
 void Volksbot::odometry()
@@ -84,13 +86,13 @@ void Volksbot::odometry()
   static double x = 0.0;
   static double y = 0.0;
   static double theta = 0.0;
-  static long enc_left_last = epos2_left_.readEncoderCounter();
-  static long enc_right_last = epos2_right_.readEncoderCounter();
+  static long enc_left_last = driving_direction_ * epos2_left_.readEncoderCounter();
+  static long enc_right_last = driving_direction_ * epos2_right_.readEncoderCounter();
   static long enc_per_turn_left = 4 * epos2_left_.getEncoderPulseNumber() * gear_ratio_;
   static long enc_per_turn_right = 4 * epos2_right_.getEncoderPulseNumber() * gear_ratio_;
 
-  long enc_left = epos2_left_.readEncoderCounter();
-  long enc_right = epos2_right_.readEncoderCounter();
+  long enc_left = driving_direction_ * epos2_left_.readEncoderCounter();
+  long enc_right = driving_direction_ * epos2_right_.readEncoderCounter();
   long wheel_l = enc_left - enc_left_last;
   long wheel_r = enc_right - enc_right_last;
 
@@ -129,8 +131,8 @@ void Volksbot::odometry()
   if (theta < -M_PI)
     theta += 2.0 * M_PI;
 
-  double v_left = epos2_left_.readVelocity() / 60.0 / gear_ratio_ * 2.0 * M_PI * wheel_radius_;
-  double v_right = -epos2_right_.readVelocity() / 60.0 / gear_ratio_ * 2.0 * M_PI * wheel_radius_;
+  double v_left = driving_direction_ * epos2_left_.readVelocity() / 60.0 / gear_ratio_ * 2.0 * M_PI * wheel_radius_;
+  double v_right = -1.0 * driving_direction_ * epos2_right_.readVelocity() / 60.0 / gear_ratio_ * 2.0 * M_PI * wheel_radius_;
   double v_x = (v_left + v_right) * 0.5;
   double v_theta = (v_right - v_left) / axis_length_ * turning_adaptation_;
 

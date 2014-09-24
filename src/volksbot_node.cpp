@@ -225,6 +225,8 @@ int main(int argc, char** argv)
   nh_ns.param("wheel_radius", wheel_radius, 0.0985);
   double axis_length;
   nh_ns.param("axis_length", axis_length, 0.41);
+  double driving_direction;
+  nh_ns.param("driving_direction", driving_direction, 1.0);
   int gear_ratio;
   nh_ns.param("gear_ratio", gear_ratio, 74);
 
@@ -240,7 +242,7 @@ int main(int argc, char** argv)
 
   ROSComm roscomm(n, sigma_x, sigma_theta, cov_x_y, cov_x_theta, cov_y_theta);
 
-  Volksbot volksbot(roscomm, wheel_radius, axis_length, turning_adaptation, gear_ratio);
+  Volksbot volksbot(roscomm, wheel_radius, axis_length, driving_direction, turning_adaptation, gear_ratio);
 
   bool publish_tf;
   nh_ns.param("publish_tf", publish_tf, false);
